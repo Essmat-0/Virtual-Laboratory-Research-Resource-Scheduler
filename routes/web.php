@@ -77,7 +77,7 @@ Route::middleware(['auth', 'role:Researcher'])->group(function () {
 
     Route::post('/equipment/{id}/book', [ReservationController::class, 'store'])->name('equipment.book.store');
     Route::post('/equipment/{equipment}/session/start', [EquipmentSessionController::class, 'storeSessionForStartNow'])->name('equipment.session.start');
-    Route::get('equipment/{equipment}/specs', [EquipmentController::class, 'specs'])->name('equipment.specs');
+    Route::get('equipment/{equipment:name}/specs', [EquipmentController::class, 'specs'])->name('equipment.specs');
 
 
     Route::patch('/researcher/dashboard/sessions/{id}/checkout', [EquipmentSessionController::class, 'endSessionForCheckout'])->name('researcher.session.checkout');
