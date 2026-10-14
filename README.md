@@ -1,6 +1,6 @@
 # Virtual Laboratory Research Resource Scheduler - VLRRS
 
-About
+## About
 A robust, enterprise-grade multi-tiered web application built on the Model-View-Controller + Service, Observers, Facade, Singleton design patterns.
 This platform acts as an integrated ecosystem that bridges scientific research administration with institutional resource scheduling, grant-based financials, and strict safety compliance metrics.
 ---
