@@ -6,8 +6,8 @@
 
 **A university-grade lab operations platform where every booking is a safety decision, a financial transaction, and a compliance event — not a database row.**
 
-[![Tests](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler-VLRRS-/actions/workflows/tests.yml/badge.svg)](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler-VLRRS-/actions/workflows/tests.yml)
-[![Lint](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler-VLRRS-/actions/workflows/lint.yml/badge.svg)](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler-VLRRS-/actions/workflows/lint.yml)
+[![Tests](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler/actions/workflows/tests.yml/badge.svg)](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler/actions/workflows/tests.yml)
+[![Lint](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler/actions/workflows/lint.yml/badge.svg)](https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler/actions/workflows/lint.yml)
 
 ![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
@@ -241,8 +241,8 @@ The system ships **five distinct, permission-scoped personas**:
 
 ```bash
 # 1. Clone
-git clone https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler-VLRRS-.git
-cd Virtual-Laboratory-Research-Resource-Scheduler-VLRRS-
+git clone https://github.com/Essmat-0/Virtual-Laboratory-Research-Resource-Scheduler.git
+cd Virtual-Laboratory-Research-Resource-Scheduler
 
 # 2. One-shot setup (install deps, env, key, migrate, build assets)
 composer setup
