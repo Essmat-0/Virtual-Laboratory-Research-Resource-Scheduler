@@ -18,6 +18,7 @@
             --accent: #c8f04a;
             /* electric lime */
             --red: #ff4d5a;
+            --blue: #4d9eff;
             --font-head: 'Syne', sans-serif;
             --font-mono: 'DM Mono', monospace;
         }
@@ -326,6 +327,97 @@
             font-size: 0.85rem;
             border-radius: 4px;
         }
+
+        /* ── Report Tables (Downtime / ROI) ── */
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+        }
+
+        .data-table thead th {
+            text-align: left;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            font-weight: 500;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 0 1rem 0.9rem;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .data-table tbody td {
+            padding: 1.05rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(200, 240, 74, 0.04);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table .num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .data-table .equip {
+            font-family: var(--font-head);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .empty-state {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--muted);
+            text-align: center;
+            padding: 2rem 0;
+            margin: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 0.62rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.32rem 0.7rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+
+        .bg-danger {
+            color: var(--red);
+            border-color: rgba(255, 77, 90, 0.4);
+            background: rgba(255, 77, 90, 0.1);
+        }
+
+        .bg-success {
+            color: var(--accent);
+            border-color: rgba(200, 240, 74, 0.4);
+            background: rgba(200, 240, 74, 0.1);
+        }
     </style>
 </head>
 
@@ -467,56 +559,77 @@
         </div>
 
         <div id="tab-showDownTime" class="tab-content">
-            @forelse ($impactData as $data)
-                <div class="res-item">
-                    <div class="res-data">
-                        <tr>
-                            Equipment Name <td>{{ $data['equipment']->name }}</td> <br>
-                            Down Time <td>{{ number_format($data['downTime'], 2) }} hours</td> <br>
-                            Impact Score<td>${{ number_format($data['impact'], 2) }}</td><br>
-                        </tr>
-                        <br>
+            <section>
+                <h2>Downtime Impact</h2>
+                @if (count($impactData))
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th class="num">Downtime (hrs)</th>
+                                    <th class="num">Impact Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($impactData as $data)
+                                    <tr>
+                                        <td class="equip">{{ $data['equipment']->name }}</td>
+                                        <td class="num">{{ number_format($data['downTime'], 2) }}</td>
+                                        <td class="num">${{ number_format($data['impact'], 2) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            @empty
-                <span> There are no Equipments that has been under maintenance yet. EL7</span>
-            @endforelse
+                @else
+                    <p class="empty-state">There are no equipment that has been under maintenance yet. EL7</p>
+                @endif
+            </section>
         </div>
-    </div>
-    <div id="tab-roiReport" class="tab-content">
-        @php
-            $min_threshold = config('app.min_roi');
-        @endphp
-        <section>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Equipment Name</th>
-                        <th>Current ROI</th>
-                        <th>Min ROI (Threshold)</th>
-                        <th>Recommendation</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($roiReport as $report)
-                        <tr>
-                            <td>{{ $report->equipment->name }}</td>
-                            <td>{{ number_format($report->roi_score, 2) }}</td>
-                            <td>{{ $min_threshold }}</td>
-                            <td>{{ $report->recommendation }}</td>
-                            <td>
-                                @if ($report->roi_score < $min_threshold)
-                                    <span class="badge bg-danger">Alert: Procurement Suggested</span>
-                                @else
-                                    <span class="badge bg-success">Healthy</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </section>
+
+        <div id="tab-roiReport" class="tab-content">
+            @php
+                $min_threshold = config('app.min_roi');
+            @endphp
+            <section>
+                <h2>Return on Investment</h2>
+                @if (count($roiReport))
+                    <div class="table-wrap">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th class="num">Current ROI</th>
+                                    <th class="num">Min ROI</th>
+                                    <th>Recommendation</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($roiReport as $report)
+                                    <tr>
+                                        <td class="equip">{{ $report->equipment->name }}</td>
+                                        <td class="num">{{ number_format($report->roi_score, 2) }}</td>
+                                        <td class="num">{{ $min_threshold }}</td>
+                                        <td>{{ $report->recommendation }}</td>
+                                        <td>
+                                            @if ($report->roi_score < $min_threshold)
+                                                <span class="badge bg-danger">Procurement Suggested</span>
+                                            @else
+                                                <span class="badge bg-success">Healthy</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="empty-state">No ROI reports available yet.</p>
+                @endif
+            </section>
+        </div>
     </div>
     <script>
         function showTab(tabId, btn) {
