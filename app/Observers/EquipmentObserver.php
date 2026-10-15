@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Equipment;
+use App\Models\RoiReport;
 
 class EquipmentObserver
 {
@@ -19,22 +20,24 @@ class EquipmentObserver
      */
     public function updated(Equipment $equipment): void
     {
-        if ($equipment->wasChanged('total_usage_hours')) {
-            $cost = $equipment->maintenance_cost;
-            $roi = ($equipment->total_usage_hours / $cost) * config('app.normalization_factor');
-
-            $recommendation = ($roi < config('app.min_roi'))
-                ? "Equipment #{$equipment->id} has high maintenance costs. REVIEW"
-                : "Equipment is performing efficiently. KEEP";
-
-            $equipment->roiReports()->updateOrCreate(
-                ['equipment_id' => $equipment->id],
-                [
-                    'roi_score' => $roi,
-                    'recommendation' => $recommendation,
-                ]
-            );
+        if (! $equipment->wasChanged('total_usage_hours')) {
+            return;
         }
+
+        $roi = $equipment->roiScore();
+
+        // No maintenance cost on record yet — nothing to compute.
+        if ($roi === null) {
+            return;
+        }
+
+        $equipment->roiReports()->updateOrCreate(
+            ['equipment_id' => $equipment->id],
+            [
+                'roi_score' => $roi,
+                'recommendation' => RoiReport::recommend($roi),
+            ]
+        );
     }
 
     /**

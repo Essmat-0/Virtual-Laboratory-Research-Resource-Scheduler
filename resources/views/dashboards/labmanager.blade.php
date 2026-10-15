@@ -195,12 +195,8 @@
 
                 @forelse ($equipments as $eq)
                     @php
-                        $roi =
-                            $eq->maintenance_cost > 0
-                                ? ($eq->total_usage_hours / $eq->maintenance_cost) * config('app.normalization_factor')
-                                : 0;
-
-                        $roiColor = $roi >= 1 ? 'var(--accent)' : 'var(--red)';
+                        $roi = $eq->roiScore() ?? 0;
+                        $roiColor = $roi >= (float) config('app.min_roi') ? 'var(--accent)' : 'var(--red)';
                     @endphp
 
                     <div class="roi-item">

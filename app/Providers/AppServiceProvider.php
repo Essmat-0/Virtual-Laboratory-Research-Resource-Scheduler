@@ -4,6 +4,10 @@ namespace App\Providers;
 
 use App\Http\Responses\LoginResponse;
 use App\Models\AuditTrails;
+use App\Models\Equipment;
+use App\Models\Transaction;
+use App\Observers\EquipmentObserver;
+use App\Observers\TransactionObserver;
 use App\Services\ReservationService;
 use App\Services\TransactionService;
 use Illuminate\Auth\Events\Login;
@@ -23,13 +27,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(LoginResponseContract::class, LoginResponse::class);
 
         $this->app->singleton(ReservationService::class, function () {
-            return new ReservationService();
+            return new ReservationService;
         });
 
         $this->app->singleton(TransactionService::class, function () {
-            return new TransactionService();
+            return new TransactionService;
         });
     }
+
     /**
      * Bootstrap any application services.
      */
@@ -38,14 +43,14 @@ class AppServiceProvider extends ServiceProvider
         Event::listen('eloquent.saved: *', function ($event, $data) {
             $model = $data[0];
 
-            if ($model instanceof \App\Models\AuditTrails) {
+            if ($model instanceof AuditTrails) {
                 return;
             }
 
-
             $action = null;
-            if ($model->wasRecentlyCreated) $action = 'Created';
-            elseif ($model->getOriginal('status') !== $model->status) {
+            if ($model->wasRecentlyCreated) {
+                $action = 'Created';
+            } elseif ($model->getOriginal('status') !== $model->status) {
                 $status = strtolower($model->status);
 
                 if ($status === 'approved') {
@@ -58,8 +63,8 @@ class AppServiceProvider extends ServiceProvider
             }
 
             AuditTrails::create([
-                'user_id' => \Illuminate\Support\Facades\Auth::id() ?? 1,
-                'action' => "{$action} " . class_basename($model) . " #{$model->id}",
+                'user_id' => Auth::id() ?? 1,
+                'action' => "{$action} ".class_basename($model)." #{$model->id}",
                 'user_ip' => request()->ip(),
             ]);
         });
@@ -67,21 +72,20 @@ class AppServiceProvider extends ServiceProvider
         Event::listen('eloquent.deleted: *', function ($event, $data) {
             $model = $data[0];
 
-            if ($model instanceof \App\Models\AuditTrails) {
+            if ($model instanceof AuditTrails) {
                 return;
             }
 
-
-            \App\Models\AuditTrails::create([
-                'user_id' => \Illuminate\Support\Facades\Auth::id() ?? 1,
-                'action'  => 'Deleted ' . get_class($model) . ' ID: ' . $model->id,
+            AuditTrails::create([
+                'user_id' => Auth::id() ?? 1,
+                'action' => 'Deleted '.get_class($model).' ID: '.$model->id,
                 'user_ip' => request()->ip(),
             ]);
         });
         Event::listen(Login::class, function ($event) {
             AuditTrails::create([
                 'user_id' => $event->user->id ?? 1,
-                'action'  => '(Logged In)',
+                'action' => '(Logged In)',
                 'user_ip' => request()->ip(),
             ]);
         });
@@ -90,13 +94,13 @@ class AppServiceProvider extends ServiceProvider
             if ($event->user) {
                 AuditTrails::create([
                     'user_id' => $event->user->id ?? 1,
-                    'action'  => '(Logged Out)',
+                    'action' => '(Logged Out)',
                     'user_ip' => request()->ip(),
                 ]);
             }
         });
 
-
-        \App\Models\Transaction::observe(\App\Observers\TransactionObserver::class);
+        Transaction::observe(TransactionObserver::class);
+        Equipment::observe(EquipmentObserver::class);
     }
 }

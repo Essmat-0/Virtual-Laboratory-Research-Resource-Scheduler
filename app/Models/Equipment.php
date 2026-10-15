@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Config;
 
 class Equipment extends Model
 {
@@ -27,29 +26,36 @@ class Equipment extends Model
         'calibration_threshold',
         'cooldown_buffer',
         'quantity',
+        'maintenance_cost',
     ];
-
 
     protected $casts = [
         'hourly_rate' => 'float',
         'required_clearance' => 'integer',
     ];
 
-
-    public function needsMaintenance(): bool
+    public function roiScore(): ?float
     {
-        return $this->total_usage_hours >= $this->calibration_threshold;
+        $cost = (float) $this->maintenance_cost;
+
+        if ($cost <= 0) {
+            return null;
+        }
+
+        return ((float) $this->total_usage_hours / $cost) * (float) config('app.normalization_factor');
     }
 
     public function equipment_session(): HasMany
     {
         return $this->hasMany(EquipmentSession::class);
     }
-    public function category()
+
+    public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
-    public function reservation()
+
+    public function reservation(): HasMany
     {
         return $this->hasMany(Reservation::class);
     }
@@ -58,6 +64,7 @@ class Equipment extends Model
     {
         return $this->belongsToMany(Consumable::class, 'equipment_consumables', 'equipment_id', 'consumable_id');
     }
+
     public function roiReports(): HasMany
     {
         return $this->hasMany(RoiReport::class, 'equipment_id', 'id');
